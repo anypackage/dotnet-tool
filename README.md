@@ -50,6 +50,4 @@ Uninstall-Package -Name XMLDoc2Markdown
 
 ```PowerShell
 Get-Package -Name XMLDoc2Markdown | Update-Package
-
-Uninstall-Package
 ```
