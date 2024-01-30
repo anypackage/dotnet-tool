@@ -1,6 +1,6 @@
 # AnyPackage.DotNetTool
 
-AnyPackage.DotNetTool is an AnyPackage provider that facilitates installing DotNetTool apps from any DotNetTool bucket.
+AnyPackage.DotNetTool is an AnyPackage provider that facilitates installing .NET Tools.
 
 ## Install AnyPackage.DotNetTool
 
