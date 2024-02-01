@@ -1,17 +1,17 @@
-# AnyPackage.DotNetTool
+# AnyPackage.DotNet.Tool
 
-AnyPackage.DotNetTool is an AnyPackage provider that facilitates installing .NET Tools.
+AnyPackage.DotNet.Tool is an AnyPackage provider that facilitates installing .NET Tools.
 
-## Install AnyPackage.DotNetTool
+## Install AnyPackage.DotNet.Tool
 
 ```PowerShell
-Install-PSResource AnyPackage.DotNetTool
+Install-PSResource AnyPackage.DotNet.Tool
 ```
 
-## Import AnyPackage.DotNetTool
+## Import AnyPackage.DotNet.Tool
 
 ```PowerShell
-Import-Module AnyPackage.DotNetTool
+Import-Module AnyPackage.DotNet.Tool
 ```
 
 ## Sample usages
