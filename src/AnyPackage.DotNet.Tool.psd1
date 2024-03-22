@@ -1,10 +1,10 @@
 @{
-    RootModule = 'AnyPackage.DotNetTool.psm1'
-    ModuleVersion = '0.1.4'
+    RootModule = 'AnyPackage.DotNet.Tool.dll'
+    ModuleVersion = '0.1.0'
     CompatiblePSEditions = @('Desktop', 'Core')
     GUID = '2f27ec2e-002e-4145-8fd1-8959884ec06b'
     Author = 'Thomas Nieto'
-    Copyright = '(c) 2023 Thomas Nieto. All rights reserved.'
+    Copyright = '(c) 2024 Thomas Nieto. All rights reserved.'
     Description = '.Net Tool provider for AnyPackage.'
     PowerShellVersion = '5.1'
     RequiredModules = @(
@@ -15,10 +15,10 @@
     AliasesToExport = @()
     PrivateData = @{
         AnyPackage = @{
-            Providers = 'DotNetTool'
+            Providers = '.NET Tool'
         }
         PSData = @{
-            Tags = @('AnyPackage', 'Provider', 'DotNetTool', 'Windows')
+            Tags = @('AnyPackage', 'Provider', 'DotNet', 'Tool', 'Windows', 'Linux', "MacOS")
             LicenseUri = 'https://github.com/anypackage/dotnet-tool/blob/main/LICENSE'
             ProjectUri = 'https://github.com/anypackage/dotnet-tool'
         }
