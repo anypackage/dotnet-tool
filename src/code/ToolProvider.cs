@@ -11,6 +11,21 @@ namespace AnyPackage.Provider.DotNet
     [PackageProvider(".NET Tool")]
     public class ToolProvider : PackageProvider, IFindPackage, IGetPackage, IInstallPackage, IUpdatePackage, IUninstallPackage
     {
+        protected override object? GetDynamicParameters(string commandName)
+        {
+            switch (commandName)
+            {
+                case "Install-Package":
+                    return new InstallPackageDynamicParameters();
+                
+                case "Update-Package":
+                    return new UpdatePackageDynamicParameters();
+
+                default:
+                    return null;
+            }
+        }
+        
         public void FindPackage(PackageRequest request)
         {
             if (request.Name == "*")
@@ -127,6 +142,21 @@ namespace AnyPackage.Provider.DotNet
                 args += " --prerelease";
             }
 
+            if (request.DynamicParameters is not null)
+            {
+                var dynamicParameters = request.DynamicParameters as InstallPackageDynamicParameters;
+
+                if (dynamicParameters is not null && dynamicParameters.Architecture != "")
+                {
+                    args += $" --arch {dynamicParameters.Architecture}";
+                }
+
+                if (dynamicParameters is not null && dynamicParameters.Framework != "")
+                {
+                    args += $" --framework {dynamicParameters.Framework}";
+                }
+            }
+
             InvokeDotNet(request, args);
         }
 
@@ -149,6 +179,16 @@ namespace AnyPackage.Provider.DotNet
             if (request.Prerelease)
             {
                 args += " --prerelease";
+            }
+
+            if (request.DynamicParameters is not null)
+            {
+                var dynamicParameters = request.DynamicParameters as UpdatePackageDynamicParameters;
+
+                if (dynamicParameters is not null && dynamicParameters.Framework != "")
+                {
+                    args += $" --framework {dynamicParameters.Framework}";
+                }
             }
 
             InvokeDotNet(request, args);
