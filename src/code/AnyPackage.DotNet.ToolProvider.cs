@@ -138,6 +138,7 @@ namespace AnyPackage.Provider.DotNet
 
         public void UpdatePackage(PackageRequest request)
         {
+            //TODO: Support wildcard
             var args = $"tool update {request.Name} --global";
 
             if (request.Version is not null)
