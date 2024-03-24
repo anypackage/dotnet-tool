@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace AnyPackage.Provider.DotNet
 {
     [PackageProvider(".NET Tool")]
-    public class ToolProvider : PackageProvider, IFindPackage, IGetPackage
+    public class ToolProvider : PackageProvider, IFindPackage, IGetPackage, IInstallPackage, IUpdatePackage, IUninstallPackage
     {
         public void FindPackage(PackageRequest request)
         {
@@ -50,7 +50,7 @@ namespace AnyPackage.Provider.DotNet
                     if (!first)
                     {
                         dictionary["Versions"] = versions;
-                        WritePackage(request, dictionary, versions);
+                        WritePackageVersions(request, dictionary, versions);
                     }
 
                     first = false;
@@ -78,7 +78,7 @@ namespace AnyPackage.Provider.DotNet
             if (!first)
             {
                 dictionary["Versions"] = versions;
-                WritePackage(request, dictionary, versions);
+                WritePackageVersions(request, dictionary, versions);
             }
         }
 
@@ -96,7 +96,7 @@ namespace AnyPackage.Provider.DotNet
 
             while ((line = reader.ReadLine()) is not null)
             {
-                var match = Regex.Match(line, @"^(?<Name>\S+)\s+(?<Version>\d\\S+)\s+(?<Commands>.+)$");
+                var match = Regex.Match(line, @"^(?<Name>\S+)\s+(?<Version>\d\S+)\s+(?<Commands>.+)$");
 
                 if (match.Success && request.IsMatch(match.Groups["Name"].Value, match.Groups["Version"].Value))
                 {
@@ -113,7 +113,85 @@ namespace AnyPackage.Provider.DotNet
             }
         }
 
-        private void WritePackage(PackageRequest request, Dictionary<string, object> dictionary, Dictionary<PackageVersion, long> versions)
+        public void InstallPackage(PackageRequest request)
+        {
+            var args = $"tool install {request.Name} --global";
+
+            if (request.Version is not null)
+            {
+                args += $" --version {request.Version}";
+            }
+
+            if (request.Prerelease)
+            {
+                args += " --prerelease";
+            }
+
+            InvokeDotNet(request, args);
+        }
+
+        public void UninstallPackage(PackageRequest request)
+        {
+            var args = $"tool uninstall {request.Name} --global";
+            InvokeDotNet(request, args);
+        }
+
+        public void UpdatePackage(PackageRequest request)
+        {
+            var args = $"tool update {request.Name} --global";
+
+            if (request.Version is not null)
+            {
+                args += $" --version {request.Version}";
+            }
+
+            if (request.Prerelease)
+            {
+                args += " --prerelease";
+            }
+
+            InvokeDotNet(request, args);
+        }
+
+        private void InvokeDotNet(PackageRequest request, string args)
+        {
+            request.WriteVerbose($"Calling 'dotnet {args}'");
+            
+            using var process = new Process();
+            process.StartInfo.Arguments = args;
+            process.StartInfo.FileName = "dotnet";
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+            process.WaitForExit();
+
+            var output = process.StandardOutput.ReadToEnd();
+            var error = process.StandardError.ReadToEnd();
+
+            if (output.Length > 0)
+            {
+                request.WriteVerbose(output);
+            }
+
+            if (Regex.IsMatch(error, "could not be found"))
+            {
+                return;
+            }
+            else if (error.Length > 0)
+            {
+                throw new PackageProviderException(error);
+            }
+
+            var match = Regex.Match(output, @"Tool '(?<Name>\S+)'.+version '(?<Version>\S+)'");
+            var package = new PackageInfo(match.Groups["Name"].Value,
+                                          match.Groups["Version"].Value,
+                                          ProviderInfo);
+
+            request.WritePackage(package);
+        }
+
+        private void WritePackageVersions(PackageRequest request, Dictionary<string, object> dictionary, Dictionary<PackageVersion, long> versions)
         {
             foreach (var version in versions.Keys)
             {
