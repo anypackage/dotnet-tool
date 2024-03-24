@@ -1,5 +1,5 @@
 @{
-    RootModule = 'AnyPackage.DotNet.Tool.dll'
+    RootModule = 'AnyPackage.DotNet.ToolProvider.dll'
     ModuleVersion = '0.1.0'
     CompatiblePSEditions = @('Desktop', 'Core')
     GUID = '2f27ec2e-002e-4145-8fd1-8959884ec06b'
