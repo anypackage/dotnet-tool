@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Management.Automation;
 using System.Text.RegularExpressions;
 
 namespace AnyPackage.Provider.DotNet
@@ -168,8 +169,25 @@ namespace AnyPackage.Provider.DotNet
 
         public void UpdatePackage(PackageRequest request)
         {
-            //TODO: Support wildcard
-            var args = $"tool update {request.Name} --global";
+            using var powershell = PowerShell.Create(RunspaceMode.CurrentRunspace);
+
+            var packages = powershell.AddCommand("Get-Package")
+                                  .AddParameter("Provider", ".NET Tool")
+                                  .AddCommand("Where-Object")
+                                  .AddParameter("Property", "Name")
+                                  .AddParameter("Like")
+                                  .AddParameter("Value", request.Name)
+                                  .Invoke<PackageInfo>();
+
+            foreach (var package in packages)
+            {
+                InvokeUpdate(request, package.Name);
+            }
+        }
+
+        private void InvokeUpdate(PackageRequest request, string name)
+        {
+            var args = $"tool update {name} --global";
 
             if (request.Version is not null)
             {
